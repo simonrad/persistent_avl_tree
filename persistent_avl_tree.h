@@ -107,12 +107,16 @@ class AvlTree {
 // Standalone functions declared/defined here:
 // --------------------------------------------------
 
-template<typename TreeType>
-std::string draw_as_text(TreeType* tree) {
-    if (tree == nullptr) {
-        return "NULL TREE";
+namespace TreeOps {
+
+    template<typename TreeType>
+    std::string draw_as_text(TreeType* tree) {
+        if (tree == nullptr) {
+            return "NULL TREE";
+        }
+        return tree->get_derived()->draw_as_text();
     }
-    return tree->get_derived()->draw_as_text();
+
 }
 
 

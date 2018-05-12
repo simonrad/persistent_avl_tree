@@ -30,13 +30,17 @@ class LinkedList {
 };
 
 
-template<typename NodeContent>
-std::string to_string(const std::shared_ptr<LinkedList<NodeContent>>& list, const std::string& prefix = "LL") {
-    if (list == nullptr) {
-        return "nullptr";
+namespace ListOps {
+
+    template<typename NodeContent>
+    std::string to_string(const std::shared_ptr<LinkedList<NodeContent>>& list, const std::string& prefix = "LL") {
+        if (list == nullptr) {
+            return "nullptr";
+        }
+
+        std::ostringstream oss;
+        oss << prefix << "(" << list->get_head_content() << ", " << to_string(list->get_rest()) << ")";
+        return oss.str();
     }
 
-    std::ostringstream oss;
-    oss << prefix << "(" << list->get_head_content() << ", " << to_string(list->get_rest()) << ")";
-    return oss.str();
 }

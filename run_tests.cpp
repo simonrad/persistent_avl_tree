@@ -3,6 +3,7 @@
 #include "persistent_avl_tree.h"
 
 using namespace std;
+using namespace TreeOps;
 
 
 template<typename NodeContent>
@@ -189,7 +190,7 @@ int main() {
 
     const auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));
     cout << "list1:" << endl;
-    cout << to_string(list1) << endl;
+    cout << ListOps::to_string(list1) << endl;
     cout << endl;
 
 
