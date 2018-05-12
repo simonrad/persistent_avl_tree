@@ -79,13 +79,13 @@ int main() {
     assert(1 == 1);
 
 
-    auto tree1 = make_shared<CustomTree>(100, nullptr, nullptr);
+    const auto tree1 = make_shared<CustomTree>(100, nullptr, nullptr);
     cout << "tree1:" << endl;
     cout << draw_as_text(tree1.get()) << endl;
     cout << endl;
 
 
-    auto tree2 =
+    const auto tree2 =
         make_shared<CustomTree>(
             100,
             nullptr,
@@ -100,7 +100,7 @@ int main() {
     cout << endl;
 
 
-    auto tree3 =
+    const auto tree3 =
         make_shared<CustomTree>(
             100,
             make_shared<CustomTree>(
@@ -123,7 +123,7 @@ int main() {
     cout << endl;
 
 
-    auto tree4 =
+    const auto tree4 =
         make_shared<CustomTree>(
             100,
             make_shared<CustomTree>(
@@ -150,13 +150,13 @@ int main() {
     cout << endl;
 
 
-    auto tree5 = CustomTree::construct_from_vector({1, 20, 300, 4000, 50000, 600000, -7000000});
+    const auto tree5 = CustomTree::construct_from_vector({1, 20, 300, 4000, 50000, 600000, -7000000});
     cout << "tree5:" << endl;
     cout << draw_as_text(tree5.get()) << endl;
     cout << endl;
 
 
-    auto tree6 =
+    const auto tree6 =
         make_shared<UsableTree<int>>(
             100,
             nullptr,
@@ -171,7 +171,7 @@ int main() {
     cout << endl;
 
 
-    auto tree7 = UsableTree<int>::construct_from_vector({1, 20, 300, 4000, 50000, 600000, -7000000});
+    const auto tree7 = UsableTree<int>::construct_from_vector({1, 20, 300, 4000, 50000, 600000, -7000000});
     cout << "tree7:" << endl;
     cout << draw_as_text(tree7.get()) << endl;
     cout << endl;
@@ -187,7 +187,7 @@ int main() {
     );
 
 
-    auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));
+    const auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));
     cout << "list1:" << endl;
     cout << to_string(list1) << endl;
     cout << endl;

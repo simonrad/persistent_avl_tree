@@ -56,6 +56,25 @@ class AvlTree {
             int end_index = -1 // Exclusive of end_index.
         );
 
+        /*
+         * A FinderFunc defines a path to a node or an empty spot within a tree.
+         * A FinderFunc returns
+         *     -1 if we should go to current_node->get_left(),
+         *     1 if we should go to current_node->get_right(),
+         *     or 0 if we should stop at current_node.
+         */
+        typedef std::function<int (const TreePtr& current_node)> FinderFunc;
+
+        /*
+         * Returns the node of the tree found by finder_func,
+         * or nullptr if finder_func ended at an empty spot.
+         */
+        static TreePtr find(
+            const TreePtr& self,
+            FinderFunc&& finder_func,
+            int* num_to_left = nullptr // Make sure to initialize num_to_left to 0 before passing.
+        );
+
     private:
         struct DrawDimensions {
             int width                  = 0;
@@ -100,10 +119,12 @@ std::string draw_as_text(TreeType* tree) {
 // Class method implementations defined here:
 // --------------------------------------------------
 
+#define AvlTreeX AvlTree<NodeContent, DerivedTree>
+
 // (static method)
 template<typename NodeContent, typename DerivedTree>
-typename AvlTree<NodeContent, DerivedTree>::DrawDimensions
-AvlTree<NodeContent, DerivedTree>::get_draw_dimensions(DerivedTree* self, DrawMemo* memo) {
+typename AvlTreeX::DrawDimensions
+AvlTreeX::get_draw_dimensions(DerivedTree* self, DrawMemo* memo) {
     constexpr int MIN_SPACE_BETWEEN_SUBTREES = 2; // Should be greater than zero.
 
     if (self == nullptr) {
@@ -163,7 +184,7 @@ AvlTree<NodeContent, DerivedTree>::get_draw_dimensions(DerivedTree* self, DrawMe
 
 // (static method)
 template<typename NodeContent, typename DerivedTree>
-void AvlTree<NodeContent, DerivedTree>::draw_to_text(
+void AvlTreeX::draw_to_text(
     DerivedTree* self,
     std::vector<std::string>* text,
     int start_x,
@@ -247,7 +268,7 @@ void AvlTree<NodeContent, DerivedTree>::draw_to_text(
 
 // (instance method)
 template<typename NodeContent, typename DerivedTree>
-std::string AvlTree<NodeContent, DerivedTree>::draw_as_text() {
+std::string AvlTreeX::draw_as_text() {
 
     DerivedTree* derived_this = this->get_derived();
 
@@ -282,8 +303,8 @@ std::string AvlTree<NodeContent, DerivedTree>::draw_as_text() {
 
 // (static method)
 template<typename NodeContent, typename DerivedTree>
-typename AvlTree<NodeContent, DerivedTree>::TreePtr
-AvlTree<NodeContent, DerivedTree>::construct_from_vector(
+typename AvlTreeX::TreePtr
+AvlTreeX::construct_from_vector(
     const std::vector<NodeContent>& vec,
     int start_index /* = 0 */,
     int end_index /* = -1 */
@@ -302,6 +323,18 @@ AvlTree<NodeContent, DerivedTree>::construct_from_vector(
     );
 }
 
+// (static method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::TreePtr
+AvlTreeX::find(
+    const TreePtr& self,
+    FinderFunc&& finder_func,
+    int* num_to_left /* = nullptr */ // Make sure to initialize num_to_left to 0 before passing.
+) {
+    return nullptr; // TODO
+}
+
+#undef AvlTreeX
 
 // DONE
 // ----------
@@ -317,8 +350,6 @@ AvlTree<NodeContent, DerivedTree>::construct_from_vector(
 
 // TODO
 // ----------
-    // TODO: Put on Github
-
     // TODO: Implement static TreePtr find(const TreePtr& self, finder_func, int* num_to_left = nullptr) // Make sure to initialize num_to_left to 0 before passing.
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
