@@ -82,7 +82,7 @@ int main() {
 
     const auto tree1 = make_shared<CustomTree>(100, nullptr, nullptr);
     cout << "tree1:" << endl;
-    cout << draw_as_text(tree1.get()) << endl;
+    cout << draw_as_text(tree1) << endl;
     cout << endl;
 
 
@@ -97,7 +97,7 @@ int main() {
             )
         );
     cout << "tree2:" << endl;
-    cout << draw_as_text(tree2.get()) << endl;
+    cout << draw_as_text(tree2) << endl;
     cout << endl;
 
 
@@ -120,7 +120,7 @@ int main() {
             )
         );
     cout << "tree3:" << endl;
-    cout << draw_as_text(tree3.get()) << endl;
+    cout << draw_as_text(tree3) << endl;
     cout << endl;
 
 
@@ -147,13 +147,13 @@ int main() {
             )
         );
     cout << "tree4:" << endl;
-    cout << draw_as_text(tree4.get()) << endl;
+    cout << draw_as_text(tree4) << endl;
     cout << endl;
 
 
     const auto tree5 = CustomTree::construct_from_vector({1, 20, 300, 4000, 50000, 600000, -7000000});
     cout << "tree5:" << endl;
-    cout << draw_as_text(tree5.get()) << endl;
+    cout << draw_as_text(tree5) << endl;
     cout << endl;
 
 
@@ -168,16 +168,16 @@ int main() {
             )
         );
     cout << "tree6:" << endl;
-    cout << draw_as_text(tree6.get()) << endl;
+    cout << draw_as_text(tree6) << endl;
     cout << endl;
 
 
     const auto tree7 = UsableTree<int>::construct_from_vector({1, 20, 300, 4000, 50000, 600000, -7000000});
     cout << "tree7:" << endl;
-    cout << draw_as_text(tree7.get()) << endl;
+    cout << draw_as_text(tree7) << endl;
     cout << endl;
 
-    assert(draw_as_text(tree7.get()) ==
+    assert(draw_as_text(tree7) ==
         strip_margin(R"raw(
             |       4000               |
             |   /‾‾‾    ‾‾‾‾‾\         |
@@ -186,6 +186,11 @@ int main() {
             |1    300  50000   -7000000|
         )raw")
     );
+
+
+    cout << "finding the root:" << endl;
+    cout << get_label(UsableTree<int>::find(tree7, [](const UsableTree<int>::TreePtr& node){ return 0; })) << endl;
+    cout << endl;
 
 
     const auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));

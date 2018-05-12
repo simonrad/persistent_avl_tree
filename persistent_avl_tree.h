@@ -110,11 +110,19 @@ class AvlTree {
 namespace TreeOps {
 
     template<typename TreeType>
-    std::string draw_as_text(TreeType* tree) {
+    std::string draw_as_text(const std::shared_ptr<TreeType>& tree) {
         if (tree == nullptr) {
             return "NULL TREE";
         }
         return tree->get_derived()->draw_as_text();
+    }
+
+    template<typename TreeType>
+    std::string get_label(const std::shared_ptr<TreeType>& tree) {
+        if (tree == nullptr) {
+            return "NULL TREE";
+        }
+        return tree->get_derived()->get_label();
     }
 
 }
