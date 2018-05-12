@@ -42,6 +42,29 @@ class CustomTree : public AvlTree<int, CustomTree> {
 };
 
 
+static string strip_prefix(const string& s, char prefix_char) {
+    // Find the first non-prefix character.
+    int i;
+    for (i = 0; i < s.size(); i++) {
+        if (s[i] != prefix_char) {
+            break;
+        }
+    }
+    return s.substr(i);
+}
+
+static string strip_margin(const string& s) {
+    string ret;
+    istringstream iss(s);
+
+    for (string line; getline(iss, line); ) {
+        ret += "\n" + strip_prefix(line, ' ');
+    }
+
+    return strip_prefix(ret, '\n');
+}
+
+
 int main() {
     cout << "Hello world" << endl;
     cout << endl;
@@ -153,15 +176,15 @@ int main() {
     cout << draw_as_text(tree7.get()) << endl;
     cout << endl;
 
-
-    const string expected_string = R"delimiter(
-|       4000               |
-|   /‾‾‾    ‾‾‾‾‾\         |
-|  20          600000      |
-| /  ‾\       /      ‾\    |
-|1    300  50000   -7000000|
-)delimiter";
-    assert(expected_string == "\n" + draw_as_text(tree7.get()));
+    assert(draw_as_text(tree7.get()) ==
+        strip_margin(R"raw(
+            |       4000               |
+            |   /‾‾‾    ‾‾‾‾‾\         |
+            |  20          600000      |
+            | /  ‾\       /      ‾\    |
+            |1    300  50000   -7000000|
+        )raw")
+    );
 
 
     auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));

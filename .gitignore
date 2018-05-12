@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+run_tests
 
 # Other stuff
 .DS_Store
