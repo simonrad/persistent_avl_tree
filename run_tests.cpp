@@ -188,9 +188,45 @@ int main() {
     );
 
 
-    cout << "finding the root:" << endl;
-    cout << get_label(UsableTree<int>::find(tree7, [](const UsableTree<int>::TreePtr& node){ return 0; })) << endl;
-    cout << endl;
+    {
+        cout << "finding the root:" << endl;
+        int num_to_left = 0;
+        cout << get_label(UsableTree<int>::find(tree7, [](const UsableTree<int>::TreePtr& node){ return 0; }, &num_to_left)) << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+    }
+
+
+    {
+        cout << "finding 300:" << endl;
+        int num_to_left = 0;
+        int i = 0;
+        cout << get_label(UsableTree<int>::find(tree7, [i](const UsableTree<int>::TreePtr& node) mutable {
+            i++;
+            if (i == 1) { return -1; }
+            if (i == 2) { return 1; }
+            if (i == 3) { return 0; }
+            assert(false);
+        }, &num_to_left)) << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+    }
+
+
+    {
+        cout << "finding empty spot to the right of 300:" << endl;
+        int num_to_left = 0;
+        int i = 0;
+        cout << get_label(UsableTree<int>::find(tree7, [i](const UsableTree<int>::TreePtr& node) mutable {
+            i++;
+            if (i == 1) { return -1; }
+            if (i == 2) { return 1; }
+            if (i == 3) { return 1; }
+            assert(false);
+        }, &num_to_left)) << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+    }
 
 
     const auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));

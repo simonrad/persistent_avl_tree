@@ -27,17 +27,16 @@ class AvlTree {
             const NodeContent& content,
             const TreePtr& left,
             const TreePtr& right
-        ):
-            content(content),
-            left(left),
-            right(right)
-        {}
+        );
 
         virtual ~AvlTree() {}
 
         const NodeContent& get_content() { return content; }
         const TreePtr& get_left() { return left; }
         const TreePtr& get_right() { return right; }
+        int get_size() { return size; } // Number of nodes in this tree.
+        int get_height() { return height; } // Number of levels in this tree, i.e. length of the longest path from the root.
+
         int get_num_children() { return int(bool(left)) + int(bool(right)); }
 
         DerivedTree* get_derived() {
@@ -101,6 +100,8 @@ class AvlTree {
         const NodeContent content;
         const TreePtr left;
         const TreePtr right;
+        const int size;
+        const int height;
 };
 
 
@@ -125,6 +126,22 @@ namespace TreeOps {
         return tree->get_derived()->get_label();
     }
 
+    template<typename TreeType>
+    int get_size(const std::shared_ptr<TreeType>& tree) {
+        if (tree == nullptr) {
+            return 0;
+        }
+        return tree->get_derived()->get_size();
+    }
+
+    template<typename TreeType>
+    int get_height(const std::shared_ptr<TreeType>& tree) {
+        if (tree == nullptr) {
+            return 0;
+        }
+        return tree->get_derived()->get_height();
+    }
+
 }
 
 
@@ -132,6 +149,20 @@ namespace TreeOps {
 // --------------------------------------------------
 
 #define AvlTreeX AvlTree<NodeContent, DerivedTree>
+
+// (constructor)
+template<typename NodeContent, typename DerivedTree>
+AvlTreeX::AvlTree(
+    const NodeContent& content,
+    const TreePtr& left,
+    const TreePtr& right
+):
+    content(content),
+    left(left),
+    right(right),
+    size(TreeOps::get_size(left) + 1 + TreeOps::get_size(right)),
+    height(1 + std::max(TreeOps::get_height(left), TreeOps::get_height(right)))
+{}
 
 // (static method)
 template<typename NodeContent, typename DerivedTree>
@@ -343,7 +374,23 @@ AvlTreeX::find(
     FinderFunc&& finder_func,
     int* num_to_left /* = nullptr */ // Make sure to initialize num_to_left to 0 before passing.
 ) {
-    return nullptr; // TODO
+    if (self == nullptr) {
+        return nullptr;
+    }
+    int direction = finder_func(self);
+    if (direction < 0) {
+        return find(self->get_left(), std::move(finder_func), num_to_left);
+    } else if (direction == 0) {
+        if (num_to_left) {
+            *num_to_left += TreeOps::get_size(self->get_left());
+        }
+        return self;
+    } else { // direction > 0
+        if (num_to_left) {
+            *num_to_left += TreeOps::get_size(self->get_left()) + 1;
+        }
+        return find(self->get_right(), std::move(finder_func), num_to_left);
+    }
 }
 
 #undef AvlTreeX
@@ -409,6 +456,8 @@ AvlTreeX::find(
     // TODO: Test that the destructor is called the right number of times
 
     // TODO: Add a base class for a K,V ordered map. Take DerivedTree as a template param.
+    // TODO: Add usable derived classes
+    // TODO: Add examples
 
     // TODO: Add a readme
 
