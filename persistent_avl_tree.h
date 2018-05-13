@@ -37,6 +37,12 @@ class AvlTree {
         int get_size() { return size; } // Number of nodes in this tree.
         int get_height() { return height; } // Number of levels in this tree, i.e. length of the longest path from the root.
 
+        const TreePtr& get_child(int left_or_right) {
+            assert(left_or_right != 0);
+            if (left_or_right < 0) { return left; }
+            else                   { return right; }
+        }
+
         int get_num_children() { return int(bool(left)) + int(bool(right)); }
 
         DerivedTree* get_derived() {
@@ -73,6 +79,8 @@ class AvlTree {
             FinderFunc&& finder_func,
             int* num_to_left = nullptr // Make sure to initialize num_to_left to 0 before passing.
         );
+
+        static FinderFunc index_finder(int index, int from_left_or_right = -1);
 
     private:
         struct DrawDimensions {
@@ -140,6 +148,15 @@ namespace TreeOps {
             return 0;
         }
         return tree->get_derived()->get_height();
+    }
+
+    template<typename TreeType>
+    std::shared_ptr<TreeType> find(
+        const std::shared_ptr<TreeType>& self,
+        typename TreeType::FinderFunc&& finder_func,
+        int* num_to_left = nullptr // Make sure to initialize num_to_left to 0 before passing.
+    ) {
+        return TreeType::find(self, std::move(finder_func), num_to_left);
     }
 
 }
@@ -380,17 +397,40 @@ AvlTreeX::find(
     int direction = finder_func(self);
     if (direction < 0) {
         return find(self->get_left(), std::move(finder_func), num_to_left);
-    } else if (direction == 0) {
+    }
+    else if (direction == 0) {
         if (num_to_left) {
             *num_to_left += TreeOps::get_size(self->get_left());
         }
         return self;
-    } else { // direction > 0
+    }
+    else { // direction > 0
         if (num_to_left) {
             *num_to_left += TreeOps::get_size(self->get_left()) + 1;
         }
         return find(self->get_right(), std::move(finder_func), num_to_left);
     }
+}
+
+// (static method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::FinderFunc
+AvlTreeX::index_finder(int index, int from_left_or_right /* = -1 */) {
+    assert(from_left_or_right != 0);
+    return [index, from_left_or_right](const TreePtr& current_node) mutable {
+        assert(current_node != nullptr);
+        int left_size = TreeOps::get_size(current_node->get_child(from_left_or_right));
+        if (index < left_size) {
+            return from_left_or_right;
+        }
+        else if (index == left_size) {
+            return 0;
+        }
+        else { // index > left_size
+            index -= (left_size + 1);
+            return -from_left_or_right;
+        }
+    };
 }
 
 #undef AvlTreeX
@@ -401,25 +441,24 @@ AvlTreeX::find(
     // DONE: Compute mid as the midpoint of the space between subtrees, which can expand to fill the label width
     // DONE: Connect left_mid_x and right_mid_x with underscores
     // DONE: Handle off-by-1? (Add 1 to label_len to make it divisible by 2)
-
     // DONE: Implement class LinkedList<T>
-
     // DONE: Move main() and the custom tree classes to another file. Implementations probably need to move to header file.
+    // DONE: Implement static TreePtr find(const TreePtr& self, finder_func, int* num_to_left = nullptr) // Make sure to initialize num_to_left to 0 before passing.
+    // DONE: Implement index_finder(int index, int from_left_or_right = -1)
 
 
 // TODO
 // ----------
-    // TODO: Implement static TreePtr find(const TreePtr& self, finder_func, int* num_to_left = nullptr) // Make sure to initialize num_to_left to 0 before passing.
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
 
     // TODO: Implement some finder functions
-    // TODO: Implement index_finder(int index, int left_or_right = 1)
     // TODO: Implement furthest_finder(int left_or_right)
     // TODO: Implement furthest_inserter(int left_or_right)
     // TODO: Implement leftmost_finder()
     // TODO: Implement rightmost_finder()
-    // TODO: Implement cmp_finder(std::function<int (const NodeContent& c1, const NodeContent& c2)> cmp = nullptr)
+    // TODO: Implement cmp_finder(const NodeContent& to_find, std::function<int (const NodeContent& c1, const NodeContent& c2)> cmp)
+    // TODO: Implement cmp_finder(const NodeContent& to_find)
 
     // TODO: Implement  make_tree<DerivedTree, NodeContent>(
     //                      const NodeContent& content,

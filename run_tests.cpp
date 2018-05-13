@@ -10,14 +10,14 @@ template<typename NodeContent>
 class UsableTree : public AvlTree<NodeContent, UsableTree<NodeContent>> {
     public:
         typedef AvlTree<NodeContent, UsableTree> Base;
-        typedef typename Base::TreePtr TreePtr;
+        typedef typename Base::TreePtr TreePtr2;
 
         using AvlTree<NodeContent, UsableTree>::AvlTree;
 
         // UsableTree(
         //     const NodeContent& content,
-        //     const TreePtr& left,
-        //     const TreePtr& right
+        //     const TreePtr2& left,
+        //     const TreePtr2& right
         // ):
         //     Base(content, left, right)
         // {}
@@ -191,9 +191,12 @@ int main() {
     {
         cout << "finding the root:" << endl;
         int num_to_left = 0;
-        cout << get_label(UsableTree<int>::find(tree7, [](const UsableTree<int>::TreePtr& node){ return 0; }, &num_to_left)) << endl;
+        const string found_label = get_label(find(tree7, [](const UsableTree<int>::TreePtr& node){ return 0; }, &num_to_left));
+        cout << found_label << endl;
         cout << num_to_left << endl;
         cout << endl;
+        assert(found_label == "4000");
+        assert(num_to_left == 3);
     }
 
 
@@ -201,15 +204,18 @@ int main() {
         cout << "finding 300:" << endl;
         int num_to_left = 0;
         int i = 0;
-        cout << get_label(UsableTree<int>::find(tree7, [i](const UsableTree<int>::TreePtr& node) mutable {
+        const string found_label = get_label(find(tree7, [i](const UsableTree<int>::TreePtr& node) mutable {
             i++;
             if (i == 1) { return -1; }
             if (i == 2) { return 1; }
             if (i == 3) { return 0; }
             assert(false);
-        }, &num_to_left)) << endl;
+        }, &num_to_left));
+        cout << found_label << endl;
         cout << num_to_left << endl;
         cout << endl;
+        assert(found_label == "300");
+        assert(num_to_left == 2);
     }
 
 
@@ -217,15 +223,126 @@ int main() {
         cout << "finding empty spot to the right of 300:" << endl;
         int num_to_left = 0;
         int i = 0;
-        cout << get_label(UsableTree<int>::find(tree7, [i](const UsableTree<int>::TreePtr& node) mutable {
+        const string found_label = get_label(find(tree7, [i](const UsableTree<int>::TreePtr& node) mutable {
             i++;
             if (i == 1) { return -1; }
             if (i == 2) { return 1; }
             if (i == 3) { return 1; }
             assert(false);
-        }, &num_to_left)) << endl;
+        }, &num_to_left));
+        cout << found_label << endl;
         cout << num_to_left << endl;
         cout << endl;
+        assert(found_label == "NULL TREE");
+        assert(num_to_left == 3);
+    }
+
+
+    {
+        cout << "finding index 0:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(0), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "1");
+        assert(num_to_left == 0);
+    }
+
+
+    {
+        cout << "finding index 6 from right:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(6, 1), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "1");
+        assert(num_to_left == 0);
+    }
+
+
+    {
+        cout << "finding index 0 from right:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(0, 1), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "-7000000");
+        assert(num_to_left == 6);
+    }
+
+
+    {
+        cout << "finding index 6:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(6), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "-7000000");
+        assert(num_to_left == 6);
+    }
+
+
+    {
+        cout << "finding index 2:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(2), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "300");
+        assert(num_to_left == 2);
+    }
+
+
+    {
+        cout << "finding index 3:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(3), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "4000");
+        assert(num_to_left == 3);
+    }
+
+
+    {
+        cout << "finding index 2 from right:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(2, 1), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "50000");
+        assert(num_to_left == 4);
+    }
+
+
+    {
+        cout << "finding index 8:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(8), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "NULL TREE");
+        assert(num_to_left == 7);
+    }
+
+
+    {
+        cout << "finding index -2:" << endl;
+        int num_to_left = 0;
+        const string found_label = get_label(find(tree7, UsableTree<int>::index_finder(-2), &num_to_left));
+        cout << found_label << endl;
+        cout << num_to_left << endl;
+        cout << endl;
+        assert(found_label == "NULL TREE");
+        assert(num_to_left == 0);
     }
 
 
