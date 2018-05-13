@@ -22,6 +22,7 @@ template<typename NodeContent, typename DerivedTree>
 class AvlTree {
     public:
         typedef std::shared_ptr<DerivedTree> TreePtr;
+        typedef NodeContent NodeContentT;
 
         AvlTree(
             const NodeContent& content,
@@ -82,6 +83,8 @@ class AvlTree {
 
         static FinderFunc index_finder(int index, int from_left_or_right = -1);
 
+        static std::shared_ptr<DerivedTree> null() { return nullptr; }
+
     private:
         struct DrawDimensions {
             int width                  = 0;
@@ -117,6 +120,29 @@ class AvlTree {
 // --------------------------------------------------
 
 namespace TreeOps {
+
+    template<typename TreeType>
+    std::shared_ptr<TreeType> make_tree(
+        const typename TreeType::NodeContentT& content,
+        std::shared_ptr<TreeType> child1,
+        std::shared_ptr<TreeType> child2,
+        int child2_left_or_right = 1
+    ) {
+        assert(child2_left_or_right != 0);
+        if (child2_left_or_right < 0) {
+            return std::make_shared<TreeType>(
+                content,
+                child2,
+                child1
+            );
+        } else {
+            return std::make_shared<TreeType>(
+                content,
+                child1,
+                child2
+            );
+        }
+    }
 
     template<typename TreeType>
     std::string draw_as_text(const std::shared_ptr<TreeType>& tree) {
@@ -445,6 +471,14 @@ AvlTreeX::index_finder(int index, int from_left_or_right /* = -1 */) {
     // DONE: Move main() and the custom tree classes to another file. Implementations probably need to move to header file.
     // DONE: Implement static TreePtr find(const TreePtr& self, finder_func, int* num_to_left = nullptr) // Make sure to initialize num_to_left to 0 before passing.
     // DONE: Implement index_finder(int index, int from_left_or_right = -1)
+    // DONE: Implement const TreePtr& get_child(int left_or_right)
+
+    // DONE: Implement  make_tree<DerivedTree, NodeContent>(
+    //                      const NodeContent& content,
+    //                      std::shared_ptr<DerivedTree> child1,
+    //                      std::shared_ptr<DerivedTree> child2,
+    //                      int left_or_right = 1
+    //                  )
 
 
 // TODO
@@ -460,14 +494,6 @@ AvlTreeX::index_finder(int index, int from_left_or_right /* = -1 */) {
     // TODO: Implement cmp_finder(const NodeContent& to_find, std::function<int (const NodeContent& c1, const NodeContent& c2)> cmp)
     // TODO: Implement cmp_finder(const NodeContent& to_find)
 
-    // TODO: Implement  make_tree<DerivedTree, NodeContent>(
-    //                      const NodeContent& content,
-    //                      std::shared_ptr<DerivedTree> child1,
-    //                      std::shared_ptr<DerivedTree> child2,
-    //                      int left_or_right = 1
-    //                  )
-
-    // TODO: Implement const TreePtr& get_child(int left_or_right)
     // TODO: Implement TreePtr rotate(int left_or_right)
     // TODO: Implement TreePtr double_rotate(int left_or_right)
     // TODO: Implement static TreePtr balance(const TreePtr& self)

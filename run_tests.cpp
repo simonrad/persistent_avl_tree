@@ -80,17 +80,17 @@ int main() {
     assert(1 == 1);
 
 
-    const auto tree1 = make_shared<CustomTree>(100, nullptr, nullptr);
+    const auto tree1 = make_tree<CustomTree>(100, nullptr, nullptr);
     cout << "tree1:" << endl;
     cout << draw_as_text(tree1) << endl;
     cout << endl;
 
 
     const auto tree2 =
-        make_shared<CustomTree>(
+        make_tree<CustomTree>(
             100,
             nullptr,
-            make_shared<CustomTree>(
+            make_tree<CustomTree>(
                 100,
                 nullptr,
                 nullptr
@@ -102,17 +102,17 @@ int main() {
 
 
     const auto tree3 =
-        make_shared<CustomTree>(
+        make_tree(
             100,
-            make_shared<CustomTree>(
+            make_tree<CustomTree>(
                 100,
                 nullptr,
                 nullptr
             ),
-            make_shared<CustomTree>(
+            make_tree<CustomTree>(
                 100,
                 nullptr,
-                make_shared<CustomTree>(
+                make_tree<CustomTree>(
                     100,
                     nullptr,
                     nullptr
@@ -125,21 +125,21 @@ int main() {
 
 
     const auto tree4 =
-        make_shared<CustomTree>(
+        make_tree(
             100,
-            make_shared<CustomTree>(
+            make_tree(
                 100,
-                nullptr,
-                nullptr
+                CustomTree::null(),
+                CustomTree::null()
             ),
-            make_shared<CustomTree>(
+            make_tree(
                 100,
-                make_shared<CustomTree>(
+                make_tree<CustomTree>(
                     100,
                     nullptr,
                     nullptr
                 ),
-                make_shared<CustomTree>(
+                make_tree<CustomTree>(
                     100,
                     nullptr,
                     nullptr
@@ -158,10 +158,10 @@ int main() {
 
 
     const auto tree6 =
-        make_shared<UsableTree<int>>(
+        make_tree<UsableTree<int>>(
             100,
             nullptr,
-            make_shared<UsableTree<int>>(
+            make_tree<UsableTree<int>>(
                 300,
                 nullptr,
                 nullptr
