@@ -85,6 +85,9 @@ class AvlTree {
 
         static std::shared_ptr<DerivedTree> null() { return nullptr; }
 
+        TreePtr rotate(int left_or_right);
+        TreePtr double_rotate(int left_or_right);
+
     private:
         struct DrawDimensions {
             int width                  = 0;
@@ -457,6 +460,22 @@ AvlTreeX::index_finder(int index, int from_left_or_right /* = -1 */) {
             return -from_left_or_right;
         }
     };
+}
+
+// (instance method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::TreePtr
+AvlTreeX::rotate(int left_or_right) {
+    assert(left_or_right != 0);
+    return nullptr; // TODO
+}
+
+// (instance method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::TreePtr
+AvlTreeX::double_rotate(int left_or_right) {
+    assert(left_or_right != 0);
+    return nullptr; // TODO
 }
 
 #undef AvlTreeX
