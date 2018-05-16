@@ -467,7 +467,21 @@ template<typename NodeContent, typename DerivedTree>
 typename AvlTreeX::TreePtr
 AvlTreeX::rotate(int left_or_right) {
     assert(left_or_right != 0);
-    return nullptr; // TODO
+
+    // Written assuming RIGHT rotation, i.e. that left_or_right == 1.
+    // However, works for both cases.
+
+    const int left = -left_or_right;
+    const int right = left_or_right;
+
+    assert(TreeOps::get_height(this->get_child(left)) >= 1);
+    TreePtr         subtree1 = this->get_child(left)->get_child(left);
+    const NodeContent& node2 = this->get_child(left)->get_content();
+    TreePtr         subtree3 = this->get_child(left)->get_child(right);
+    const NodeContent& node4 = this->get_content();
+    TreePtr         subtree5 = this->get_child(right);
+    TreePtr new_right_subtree = TreeOps::make_tree(node4, subtree3, subtree5, right);
+    return TreeOps::make_tree(node2, subtree1, new_right_subtree, right);
 }
 
 // (instance method)
