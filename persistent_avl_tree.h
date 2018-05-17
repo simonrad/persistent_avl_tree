@@ -474,7 +474,8 @@ AvlTreeX::rotate(int left_or_right) {
     const int left = -left_or_right;
     const int right = left_or_right;
 
-    assert(TreeOps::get_height(this->get_child(left)) >= 1);
+    assert(this->get_child(left) != nullptr);
+
     TreePtr         subtree1 = this->get_child(left)->get_child(left);
     const NodeContent& node2 = this->get_child(left)->get_content();
     TreePtr         subtree3 = this->get_child(left)->get_child(right);
@@ -489,7 +490,19 @@ template<typename NodeContent, typename DerivedTree>
 typename AvlTreeX::TreePtr
 AvlTreeX::double_rotate(int left_or_right) {
     assert(left_or_right != 0);
-    return nullptr; // TODO
+
+    // Written assuming RIGHT rotation, i.e. that left_or_right == 1.
+    // However, works for both cases.
+
+    const int left = -left_or_right;
+    const int right = left_or_right;
+
+    assert(this->get_child(left) != nullptr);
+    assert(this->get_child(left)->get_child(right) != nullptr);
+
+    TreePtr new_left_subtree = this->get_child(left)->rotate(left);
+    TreePtr new_self = TreeOps::make_tree(this->get_content(), new_left_subtree, this->get_child(right), right);
+    return new_self->rotate(right);
 }
 
 #undef AvlTreeX
@@ -513,9 +526,14 @@ AvlTreeX::double_rotate(int left_or_right) {
     //                      int left_or_right = 1
     //                  )
 
+    // DONE: Implement TreePtr rotate(int left_or_right)
+    // DONE: Implement TreePtr double_rotate(int left_or_right)
+
 
 // TODO
 // ----------
+    // TODO: Implement static TreePtr balance(const TreePtr& self)
+
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
 
@@ -526,10 +544,6 @@ AvlTreeX::double_rotate(int left_or_right) {
     // TODO: Implement rightmost_finder()
     // TODO: Implement cmp_finder(const NodeContent& to_find, std::function<int (const NodeContent& c1, const NodeContent& c2)> cmp)
     // TODO: Implement cmp_finder(const NodeContent& to_find)
-
-    // TODO: Implement TreePtr rotate(int left_or_right)
-    // TODO: Implement TreePtr double_rotate(int left_or_right)
-    // TODO: Implement static TreePtr balance(const TreePtr& self)
 
     // TODO: Define this (in file scope):
         // enum InsertOrReplaceMode {

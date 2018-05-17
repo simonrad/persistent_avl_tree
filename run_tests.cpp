@@ -381,6 +381,37 @@ int main() {
     cout << endl;
 
 
+    const auto tree9 =
+        make_tree(
+            10,
+            UsableTree<int>::null(),
+            make_tree<UsableTree<int>>(
+                30,
+                make_tree<UsableTree<int>>(
+                    20,
+                    nullptr,
+                    nullptr
+                ),
+                nullptr
+            )
+        );
+    cout << "tree9:" << endl;
+    cout << draw_as_text(tree9) << endl;
+    cout << endl;
+
+
+    const auto tree9_rotated = tree9->rotate(-1);
+    cout << "tree9_rotated:" << endl;
+    cout << draw_as_text(tree9_rotated) << endl;
+    cout << endl;
+
+
+    const auto tree9_double_rotated = tree9->double_rotate(-1);
+    cout << "tree9_double_rotated:" << endl;
+    cout << draw_as_text(tree9_double_rotated) << endl;
+    cout << endl;
+
+
     const auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));
     cout << "list1:" << endl;
     cout << ListOps::to_string(list1) << endl;
