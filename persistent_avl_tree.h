@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -91,6 +92,8 @@ class AvlTree {
         );
 
         static FinderFunc index_finder(int index, int from_left_or_right = -1);
+        static FinderFunc furthest_inserter(int left_or_right);
+        static FinderFunc furthest_finder(int left_or_right);
 
         static std::shared_ptr<DerivedTree> null() { return nullptr; }
 
@@ -515,6 +518,32 @@ AvlTreeX::index_finder(int index, int from_left_or_right /* = -1 */) {
     };
 }
 
+// (static method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::FinderFunc
+AvlTreeX::furthest_inserter(int left_or_right) {
+    assert(left_or_right != 0);
+    return [left_or_right](const TreePtr& current_node) {
+        assert(current_node != nullptr);
+        return left_or_right;
+    };
+}
+
+// (static method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::FinderFunc
+AvlTreeX::furthest_finder(int left_or_right) {
+    assert(left_or_right != 0);
+    return [left_or_right](const TreePtr& current_node) {
+        assert(current_node != nullptr);
+        if (current_node->get_child(left_or_right) == nullptr) {
+            return 0;
+        } else {
+            return left_or_right;
+        }
+    };
+}
+
 // (instance method)
 template<typename NodeContent, typename DerivedTree>
 typename AvlTreeX::TreePtr
@@ -610,22 +639,43 @@ AvlTreeX::insert_or_replace(
         || mode == REPLACE_ONLY
     );
 
-
     if (self == nullptr) {
-        // TODO: Return new node, unless mode == REPLACE_ONLY.
+        // Return new node, unless mode == REPLACE_ONLY.
+        if (mode == REPLACE_ONLY) {
+            throw std::runtime_error("insert_or_replace(): Node not found (and mode is REPLACE_ONLY).");
+        } else {
+            return std::make_shared<DerivedTree>(new_content, nullptr, nullptr);
+        }
     }
-
 
     int direction = finder_func(self); // Note: We don't have a shared_ptr to `this`, so this function cannot be an instance method.
+
     if (direction == 0) {
-        return nullptr; // TODO
-    }
-    else {
-        return nullptr; // TODO
+        // Node found.
+        if (mode == THROW_IF_FOUND) {
+            throw std::runtime_error("insert_or_replace(): Node found (and mode is THROW_IF_FOUND).");
+        } else if (mode == INSERT_LEFT_IF_FOUND) {
+            direction = -1;
+            finder_func = furthest_inserter(1);
+        } else if (mode == INSERT_RIGHT_IF_FOUND) {
+            direction = 1;
+            finder_func = furthest_inserter(-1);
+        } else if (mode == REPLACE_IF_FOUND || mode == REPLACE_ONLY) {
+            return std::make_shared<DerivedTree>(new_content, self->get_left(), self->get_right());
+        } else {
+            assert(false); // Should not get here.
+        }
     }
 
-
-    // TODO: Remember to call balance().
+    // Keep searching.
+    TreePtr new_child = insert_or_replace(
+        self->get_child(direction),
+        std::move(finder_func),
+        new_content,
+        mode
+    );
+    TreePtr new_self = TreeOps::make_tree(self->get_content(), self->get_child(-direction), new_child, direction);
+    return balance(new_self);
 }
 
 #undef AvlTreeX
@@ -654,21 +704,10 @@ AvlTreeX::insert_or_replace(
 
     // DONE: Implement static TreePtr balance(const TreePtr& self)
 
+    // DONE: Implement furthest_finder(int left_or_right)
+    // DONE: Implement furthest_inserter(int left_or_right)
 
-// TODO
-// ----------
-    // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, FinderFunc&& finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
-    // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
-
-    // TODO: Implement some finder functions
-    // TODO: Implement furthest_finder(int left_or_right)
-    // TODO: Implement furthest_inserter(int left_or_right)
-    // TODO: Implement leftmost_finder()
-    // TODO: Implement rightmost_finder()
-    // TODO: Implement cmp_finder(const NodeContent& to_find, std::function<int (const NodeContent& c1, const NodeContent& c2)> cmp)
-    // TODO: Implement cmp_finder(const NodeContent& to_find)
-
-    // TODO: Define this (in file scope):
+    // DONE: Define this (in file scope):
         // enum InsertOrReplaceMode {
         //     INSERT_LEFT_IF_FOUND = -1,
         //     THROW_IF_FOUND = 0,
@@ -677,7 +716,18 @@ AvlTreeX::insert_or_replace(
         //     REPLACE_ONLY = 3
         // };
 
-    // TODO: Implement static TreePtr insert_or_replace(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content, InsertOrReplaceMode mode = REPLACE_IF_FOUND)
+    // DONE: Implement static TreePtr insert_or_replace(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content, InsertOrReplaceMode mode = REPLACE_IF_FOUND)
+
+
+// TODO
+// ----------
+    // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, FinderFunc&& finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
+    // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
+
+    // TODO: Implement some finder functions
+    // TODO: Implement cmp_finder(const NodeContent& to_find, std::function<int (const NodeContent& c1, const NodeContent& c2)> cmp)
+    // TODO: Implement cmp_finder(const NodeContent& to_find)
+
     // TODO: Implement static TreePtr insert(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content, int mode_if_found = 0) // mode is one of {-1 = insert_to_left, 1 = insert_to_right, 0 = throw_if_found}
     // TODO: Implement static TreePtr replace(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content) // Throws if item does not exist. Uses REPLACE_ONLY.
 

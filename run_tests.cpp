@@ -436,6 +436,21 @@ int main() {
     cout << endl;
 
 
+    UsableTree<int>::TreePtr tree10 = nullptr;
+    for (int i = 0; i < 10; i++) {
+        tree10 = insert_or_replace(
+            tree10,
+            UsableTree<int>::index_finder(-1, 1), // Insert on far right (past the end).
+            i,
+            THROW_IF_FOUND
+        );
+    }
+    cout << "tree10:" << endl;
+    cout << draw_as_text(tree10) << endl;
+    cout << endl;
+    assert(is_balanced_recursively(tree10));
+
+
     cout << "Done" << endl;
     return 0;
 }
