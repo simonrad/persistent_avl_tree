@@ -375,10 +375,19 @@ int main() {
     cout << endl;
 
 
+    const auto tree8_balanced = UsableTree<int>::balance(tree8);
+    cout << "tree8_balanced:" << endl;
+    cout << draw_as_text(tree8_balanced) << endl;
+    cout << endl;
+
+
     const auto tree8_double_rotated = tree8->double_rotate(-1);
     cout << "tree8_double_rotated:" << endl;
     cout << draw_as_text(tree8_double_rotated) << endl;
     cout << endl;
+
+
+    assert(draw_as_text(tree8_balanced) == draw_as_text(tree8_rotated));
 
 
     const auto tree9 =
@@ -406,10 +415,19 @@ int main() {
     cout << endl;
 
 
+    const auto tree9_balanced = UsableTree<int>::balance(tree9);
+    cout << "tree9_balanced:" << endl;
+    cout << draw_as_text(tree9_balanced) << endl;
+    cout << endl;
+
+
     const auto tree9_double_rotated = tree9->double_rotate(-1);
     cout << "tree9_double_rotated:" << endl;
     cout << draw_as_text(tree9_double_rotated) << endl;
     cout << endl;
+
+
+    assert(draw_as_text(tree9_balanced) == draw_as_text(tree9_double_rotated));
 
 
     const auto list1 = make_shared<LinkedList<int>>(1, make_shared<LinkedList<int>>(2, make_shared<LinkedList<int>>(3, nullptr)));

@@ -88,6 +88,8 @@ class AvlTree {
         TreePtr rotate(int left_or_right);
         TreePtr double_rotate(int left_or_right);
 
+        static TreePtr balance(const TreePtr& self);
+
     private:
         struct DrawDimensions {
             int width                  = 0;
@@ -186,6 +188,31 @@ namespace TreeOps {
         int* num_to_left = nullptr // Make sure to initialize num_to_left to 0 before passing.
     ) {
         return TreeType::find(self, std::move(finder_func), num_to_left);
+    }
+
+    template<typename TreeType>
+    int get_balance_factor(const std::shared_ptr<TreeType>& tree) {
+        if (tree == nullptr) {
+            return 0;
+        }
+        int lh = TreeOps::get_height(tree->get_left());
+        int rh = TreeOps::get_height(tree->get_right());
+        return rh - lh;
+    }
+
+    template<typename TreeType>
+    bool is_balanced(const std::shared_ptr<TreeType>& tree) {
+        return abs(TreeOps::get_balance_factor(tree)) <= 1;
+    }
+
+    template<typename TreeType>
+    bool is_balanced_recursively(const std::shared_ptr<TreeType>& tree) {
+        if (tree == nullptr) {
+            return true;
+        }
+        return TreeOps::is_balanced(tree)
+            && TreeOps::is_balanced_recursively(tree->get_left())
+            && TreeOps::is_balanced_recursively(tree->get_right());
     }
 
 }
@@ -476,11 +503,11 @@ AvlTreeX::rotate(int left_or_right) {
 
     assert(this->get_child(left) != nullptr);
 
-    TreePtr         subtree1 = this->get_child(left)->get_child(left);
+    const TreePtr&  subtree1 = this->get_child(left)->get_child(left);
     const NodeContent& node2 = this->get_child(left)->get_content();
-    TreePtr         subtree3 = this->get_child(left)->get_child(right);
+    const TreePtr&  subtree3 = this->get_child(left)->get_child(right);
     const NodeContent& node4 = this->get_content();
-    TreePtr         subtree5 = this->get_child(right);
+    const TreePtr&  subtree5 = this->get_child(right);
     TreePtr new_right_subtree = TreeOps::make_tree(node4, subtree3, subtree5, right);
     return TreeOps::make_tree(node2, subtree1, new_right_subtree, right);
 }
@@ -503,6 +530,42 @@ AvlTreeX::double_rotate(int left_or_right) {
     TreePtr new_left_subtree = this->get_child(left)->rotate(left);
     TreePtr new_self = TreeOps::make_tree(this->get_content(), new_left_subtree, this->get_child(right), right);
     return new_self->rotate(right);
+}
+
+// (static method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::TreePtr
+AvlTreeX::balance(const TreePtr& self) {
+    if (self == nullptr) {
+        return nullptr;
+    }
+
+    if (TreeOps::is_balanced(self)) {
+        return self;
+    }
+
+    int lh = TreeOps::get_height(self->get_left());
+    int rh = TreeOps::get_height(self->get_right());
+
+    int direction = (lh > rh) ? 1 : -1; // Direction of rotation.
+    const TreePtr& taller_child = self->get_child(-direction);
+    assert(taller_child != nullptr);
+
+    int inner_h = TreeOps::get_height(taller_child->get_child(direction));
+    int outer_h = TreeOps::get_height(taller_child->get_child(-direction));
+
+    TreePtr result;
+
+    if (inner_h > outer_h) {
+        result = self->double_rotate(direction);
+    } else {
+        result = self->rotate(direction);
+    }
+
+    // Assert that the tree is now balanced (unless the original tree was abnormally imbalanced).
+    assert(TreeOps::is_balanced(result) || abs(lh - rh) > 2);
+
+    return result;
 }
 
 #undef AvlTreeX
@@ -529,11 +592,11 @@ AvlTreeX::double_rotate(int left_or_right) {
     // DONE: Implement TreePtr rotate(int left_or_right)
     // DONE: Implement TreePtr double_rotate(int left_or_right)
 
+    // DONE: Implement static TreePtr balance(const TreePtr& self)
+
 
 // TODO
 // ----------
-    // TODO: Implement static TreePtr balance(const TreePtr& self)
-
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
 
