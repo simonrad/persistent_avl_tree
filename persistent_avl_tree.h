@@ -15,6 +15,15 @@
 #include <vector>
 
 
+enum InsertOrReplaceMode {
+    INSERT_LEFT_IF_FOUND = -1,
+    THROW_IF_FOUND = 0,
+    INSERT_RIGHT_IF_FOUND = 1,
+    REPLACE_IF_FOUND = 2,
+    REPLACE_ONLY = 3
+};
+
+
 /*
  * A self-balancing, persistent, immutable, binary search tree.
  */
@@ -89,6 +98,13 @@ class AvlTree {
         TreePtr double_rotate(int left_or_right);
 
         static TreePtr balance(const TreePtr& self);
+
+        static TreePtr insert_or_replace(
+            const TreePtr& self,
+            FinderFunc&& finder_func,
+            const NodeContent& new_content,
+            InsertOrReplaceMode mode = REPLACE_IF_FOUND
+        );
 
     private:
         struct DrawDimensions {
@@ -213,6 +229,16 @@ namespace TreeOps {
         return TreeOps::is_balanced(tree)
             && TreeOps::is_balanced_recursively(tree->get_left())
             && TreeOps::is_balanced_recursively(tree->get_right());
+    }
+
+    template<typename TreeType>
+    std::shared_ptr<TreeType> insert_or_replace(
+        const std::shared_ptr<TreeType>& self,
+        typename TreeType::FinderFunc&& finder_func,
+        const typename TreeType::NodeContentT& new_content,
+        InsertOrReplaceMode mode = REPLACE_IF_FOUND
+    ) {
+        return TreeType::insert_or_replace(self, std::move(finder_func), new_content, mode);
     }
 
 }
@@ -568,6 +594,40 @@ AvlTreeX::balance(const TreePtr& self) {
     return result;
 }
 
+// (static method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::TreePtr
+AvlTreeX::insert_or_replace(
+    const TreePtr& self,
+    FinderFunc&& finder_func,
+    const NodeContent& new_content,
+    InsertOrReplaceMode mode /* = REPLACE_IF_FOUND */
+) {
+    assert(mode == INSERT_LEFT_IF_FOUND
+        || mode == THROW_IF_FOUND
+        || mode == INSERT_RIGHT_IF_FOUND
+        || mode == REPLACE_IF_FOUND
+        || mode == REPLACE_ONLY
+    );
+
+
+    if (self == nullptr) {
+        // TODO: Return new node, unless mode == REPLACE_ONLY.
+    }
+
+
+    int direction = finder_func(self); // Note: We don't have a shared_ptr to `this`, so this function cannot be an instance method.
+    if (direction == 0) {
+        return nullptr; // TODO
+    }
+    else {
+        return nullptr; // TODO
+    }
+
+
+    // TODO: Remember to call balance().
+}
+
 #undef AvlTreeX
 
 // DONE
@@ -578,7 +638,7 @@ AvlTreeX::balance(const TreePtr& self) {
     // DONE: Handle off-by-1? (Add 1 to label_len to make it divisible by 2)
     // DONE: Implement class LinkedList<T>
     // DONE: Move main() and the custom tree classes to another file. Implementations probably need to move to header file.
-    // DONE: Implement static TreePtr find(const TreePtr& self, finder_func, int* num_to_left = nullptr) // Make sure to initialize num_to_left to 0 before passing.
+    // DONE: Implement static TreePtr find(const TreePtr& self, FinderFunc&& finder_func, int* num_to_left = nullptr) // Make sure to initialize num_to_left to 0 before passing.
     // DONE: Implement index_finder(int index, int from_left_or_right = -1)
     // DONE: Implement const TreePtr& get_child(int left_or_right)
 
@@ -597,7 +657,7 @@ AvlTreeX::balance(const TreePtr& self) {
 
 // TODO
 // ----------
-    // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
+    // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, FinderFunc&& finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
 
     // TODO: Implement some finder functions
@@ -617,11 +677,11 @@ AvlTreeX::balance(const TreePtr& self) {
         //     REPLACE_ONLY = 3
         // };
 
-    // TODO: Implement TreePtr insert_or_replace(finder_func, const NodeContent& new_content, InsertOrReplaceMode mode = REPLACE_IF_FOUND)
-    // TODO: Implement TreePtr insert(finder_func, const NodeContent& new_content, int mode_if_found = 0) // mode is one of {-1 = insert_to_left, 1 = insert_to_right, 0 = throw_if_found}
-    // TODO: Implement TreePtr replace(finder_func, const NodeContent& new_content) // Throws if item does not exist. Uses REPLACE_ONLY.
+    // TODO: Implement static TreePtr insert_or_replace(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content, InsertOrReplaceMode mode = REPLACE_IF_FOUND)
+    // TODO: Implement static TreePtr insert(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content, int mode_if_found = 0) // mode is one of {-1 = insert_to_left, 1 = insert_to_right, 0 = throw_if_found}
+    // TODO: Implement static TreePtr replace(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content) // Throws if item does not exist. Uses REPLACE_ONLY.
 
-    // TODO: Implement TreePtr delete(finder_func, TreePtr* deleted_node = nullptr) // Throws if item does not exist
+    // TODO: Implement static TreePtr delete(const TreePtr& self, FinderFunc&& finder_func, TreePtr* deleted_node = nullptr) // Throws if item does not exist
 
     // TODO: Add sum_of_node_heights and get_average_node_height()
     // TODO: Test the average height after a bunch of insertions
