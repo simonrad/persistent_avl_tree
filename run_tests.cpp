@@ -451,6 +451,19 @@ int main() {
     assert(is_balanced_recursively(tree10));
 
 
+    UsableTree<int>::TreePtr tree11 = tree10;
+    for (int i = 0; i < 3; i++) {
+        tree11 = remove(
+            tree11,
+            [](const UsableTree<int>::TreePtr& x){ return 0; }
+        );
+    }
+    cout << "tree11:" << endl;
+    cout << draw_as_text(tree11) << endl;
+    cout << endl;
+    assert(is_balanced_recursively(tree11));
+
+
     cout << "Done" << endl;
     return 0;
 }

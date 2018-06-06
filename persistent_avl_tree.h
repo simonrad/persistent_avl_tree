@@ -99,7 +99,6 @@ class AvlTree {
 
         TreePtr rotate(int left_or_right);
         TreePtr double_rotate(int left_or_right);
-
         static TreePtr balance(const TreePtr& self);
 
         static TreePtr insert_or_replace(
@@ -107,6 +106,15 @@ class AvlTree {
             FinderFunc&& finder_func,
             const NodeContent& new_content,
             InsertOrReplaceMode mode = REPLACE_IF_FOUND
+        );
+
+        /*
+         * Throws if item does not exist.
+         */
+        static TreePtr remove(
+            const TreePtr& self,
+            FinderFunc&& finder_func,
+            TreePtr* removed_node = nullptr // If non-null, will be set to the node that was found and removed.
         );
 
     private:
@@ -244,6 +252,16 @@ namespace TreeOps {
         return TreeType::insert_or_replace(self, std::move(finder_func), new_content, mode);
     }
 
+    // Throws if item does not exist.
+    template<typename TreeType>
+    std::shared_ptr<TreeType> remove(
+        const std::shared_ptr<TreeType>& self,
+        typename TreeType::FinderFunc&& finder_func,
+        std::shared_ptr<TreeType>* removed_node = nullptr // If non-null, will be set to the node that was found and removed.
+    ) {
+        return TreeType::remove(self, std::move(finder_func), removed_node);
+    }
+
 }
 
 
@@ -288,7 +306,7 @@ AvlTreeX::get_draw_dimensions(DerivedTree* self, DrawMemo* memo) {
     DrawDimensions ret;
 
     // Compute width
-    int label_width = int(self->get_label().size());
+    const int label_width = int(self->get_label().size());
     ret.width = std::max({
         label_width + (label_width % 2), // Make the label width divisible by 2.
         left.width + MIN_SPACE_BETWEEN_SUBTREES + right.width,
@@ -306,7 +324,7 @@ AvlTreeX::get_draw_dimensions(DerivedTree* self, DrawMemo* memo) {
     ret.right_width = right.width;
 
     // Compute root_x
-    int space_between_subtrees = ret.width - left.width - right.width;
+    const int space_between_subtrees = ret.width - left.width - right.width;
     ret.root_x = left.width + space_between_subtrees / 2;
 
     // Compute left_child_x
@@ -347,10 +365,10 @@ void AvlTreeX::draw_to_text(
     assert(text->size() >= start_y + dims.height);
     assert(text->at(start_y).size() >= start_x + dims.width);
 
-    int left_start_x  = start_x;
-    int right_start_x = start_x + dims.width - dims.right_width;
-    int left_edge_x  = start_x + dims.left_child_x;
-    int right_edge_x = start_x + dims.right_child_x - 1;
+    const int left_start_x  = start_x;
+    const int right_start_x = start_x + dims.width - dims.right_width;
+    const int left_edge_x  = start_x + dims.left_child_x;
+    const int right_edge_x = start_x + dims.right_child_x - 1;
 
     // Draw the right.
     // (Before the left, in case we want to insert multi-byte unicode
@@ -381,7 +399,7 @@ void AvlTreeX::draw_to_text(
     }
 
     // Draw the label.
-    int label_len = self->get_label().size();
+    const int label_len = self->get_label().size();
     int label_start_x = start_x + dims.root_x - (label_len / 2) - ((label_len % 2) * int(is_left_subtree));
     if (label_start_x < start_x) {
         label_start_x = start_x;
@@ -393,9 +411,9 @@ void AvlTreeX::draw_to_text(
 
     // Draw the overscores.
     // Note: Here we are inserting multi-byte unicode characters, which messes with the string indexes.
-    int overscores_start_x = left_edge_x + 1;
-    int overscores_end_x   = right_edge_x;
-    int overscores_width   = overscores_end_x - overscores_start_x;
+    const int overscores_start_x = left_edge_x + 1;
+    const int overscores_end_x   = right_edge_x;
+    const int overscores_width   = overscores_end_x - overscores_start_x;
     if (overscores_width > 0) {
         // text->at(start_y).replace(overscores_start_x, overscores_width, std::string(overscores_width, '_'));
         std::string replacement;
@@ -460,7 +478,7 @@ AvlTreeX::construct_from_vector(
     if (end_index <= start_index) {
         return nullptr;
     }
-    int mid_index = (start_index + end_index) / 2;
+    const int mid_index = (start_index + end_index) / 2;
     return std::make_shared<DerivedTree>(
         vec[mid_index],
         construct_from_vector(vec, start_index, mid_index),
@@ -479,7 +497,7 @@ AvlTreeX::find(
     if (self == nullptr) {
         return nullptr;
     }
-    int direction = finder_func(self);
+    const int direction = finder_func(self);
     if (direction < 0) {
         return find(self->get_left(), std::move(finder_func), num_to_left);
     }
@@ -504,7 +522,7 @@ AvlTreeX::index_finder(int index, int from_left_or_right /* = -1 */) {
     assert(from_left_or_right != 0);
     return [index, from_left_or_right](const TreePtr& current_node) mutable {
         assert(current_node != nullptr);
-        int left_size = TreeOps::get_size(current_node->get_child(from_left_or_right));
+        const int left_size = TreeOps::get_size(current_node->get_child(from_left_or_right));
         if (index < left_size) {
             return from_left_or_right;
         }
@@ -599,15 +617,15 @@ AvlTreeX::balance(const TreePtr& self) {
         return self;
     }
 
-    int lh = TreeOps::get_height(self->get_left());
-    int rh = TreeOps::get_height(self->get_right());
+    const int lh = TreeOps::get_height(self->get_left());
+    const int rh = TreeOps::get_height(self->get_right());
 
-    int direction = (lh > rh) ? 1 : -1; // Direction of rotation.
+    const int direction = (lh > rh) ? 1 : -1; // Direction of rotation.
     const TreePtr& taller_child = self->get_child(-direction);
     assert(taller_child != nullptr);
 
-    int inner_h = TreeOps::get_height(taller_child->get_child(direction));
-    int outer_h = TreeOps::get_height(taller_child->get_child(-direction));
+    const int inner_h = TreeOps::get_height(taller_child->get_child(direction));
+    const int outer_h = TreeOps::get_height(taller_child->get_child(-direction));
 
     TreePtr result;
 
@@ -678,6 +696,58 @@ AvlTreeX::insert_or_replace(
     return balance(new_self);
 }
 
+// (static method)
+template<typename NodeContent, typename DerivedTree>
+typename AvlTreeX::TreePtr
+AvlTreeX::remove(
+    const TreePtr& self,
+    FinderFunc&& finder_func,
+    TreePtr* removed_node /* = nullptr */ // If non-null, will be set to the node that was found and removed.
+) {
+    if (self == nullptr) {
+        throw std::runtime_error("remove(): Node not found.");
+    }
+
+    const int direction = finder_func(self);
+
+    if (direction == 0) {
+        // Node found.
+        if (removed_node != nullptr) {
+            *removed_node = self;
+        }
+
+        if (self->get_left() == nullptr) {
+            return self->get_right();
+        } else if (self->get_right() == nullptr) {
+            return self->get_left();
+        } else {
+            // Remove the rightmost node on the left or the leftmost node on the right. Then replace the current node content with that node content.
+            const int sub_direction = (
+                TreeOps::get_size(self->get_right()) > TreeOps::get_size(self->get_left())
+            ) ? 1 : -1;
+            TreePtr sub_removed_node;
+
+            TreePtr new_child = remove(
+                self->get_child(sub_direction),
+                furthest_finder(-sub_direction),
+                &sub_removed_node
+            );
+            assert(sub_removed_node != nullptr);
+            TreePtr new_self = TreeOps::make_tree(sub_removed_node->get_content(), self->get_child(-sub_direction), new_child, sub_direction);
+            return balance(new_self);
+        }
+    }
+
+    // Keep searching.
+    TreePtr new_child = remove(
+        self->get_child(direction),
+        std::move(finder_func),
+        removed_node
+    );
+    TreePtr new_self = TreeOps::make_tree(self->get_content(), self->get_child(-direction), new_child, direction);
+    return balance(new_self);
+}
+
 #undef AvlTreeX
 
 // DONE
@@ -718,9 +788,13 @@ AvlTreeX::insert_or_replace(
 
     // DONE: Implement static TreePtr insert_or_replace(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content, InsertOrReplaceMode mode = REPLACE_IF_FOUND)
 
+    // DONE: Implement static TreePtr remove(const TreePtr& self, FinderFunc&& finder_func, TreePtr* removed_node = nullptr) // Throws if item does not exist
+
 
 // TODO
 // ----------
+    // TODO: Can I re-balance a merged tree by just calling balance() repeatedly?
+
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_path(const TreePtr& self, FinderFunc&& finder_func, bool prefer_left_if_not_found = false, const LinkedList<TreePtr>::Ptr& base = nullptr)
     // TODO: Implement static LinkedList<TreePtr>::Ptr get_next_path(const LinkedList<TreePtr>::Ptr& path, int shift_amount = 1)
 
@@ -730,8 +804,6 @@ AvlTreeX::insert_or_replace(
 
     // TODO: Implement static TreePtr insert(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content, int mode_if_found = 0) // mode is one of {-1 = insert_to_left, 1 = insert_to_right, 0 = throw_if_found}
     // TODO: Implement static TreePtr replace(const TreePtr& self, FinderFunc&& finder_func, const NodeContent& new_content) // Throws if item does not exist. Uses REPLACE_ONLY.
-
-    // TODO: Implement static TreePtr delete(const TreePtr& self, FinderFunc&& finder_func, TreePtr* deleted_node = nullptr) // Throws if item does not exist
 
     // TODO: Add sum_of_node_heights and get_average_node_height()
     // TODO: Test the average height after a bunch of insertions
